@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:vendor">
+   </FileRef>
+   <FileRef
+      location = "group:app.json">
+   </FileRef>
+   <FileRef
+      location = "group:composer.json">
+   </FileRef>
+   <FileRef
+      location = "group:composer.lock">
+   </FileRef>
+   <FileRef
+      location = "group:config">
+   </FileRef>
+   <FileRef
+      location = "group:index.html">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/aamanlamba/Documents/movies-php-neoclient/index3.php">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/aamanlamba/Documents/movies-php-neoclient/index.php">
+   </FileRef>
+   <FileRef
+      location = "group:Procfile">
+   </FileRef>
+   <FileRef
+      location = "group:README.adoc">
+   </FileRef>
+   <FileRef
+      location = "group:static">
+   </FileRef>
+</Workspace>

@@ -11,7 +11,7 @@ function drawGraph(){
     var svg = d3.select("#graph").append("svg")
     var chartLayer = svg.append("g").classed("chartLayer", true)
   
-  //  var color = d3.scaleOrdinal(d3.schemeCategory10);
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
     main();
 
     function main() {
@@ -80,8 +80,8 @@ function drawGraph(){
          .enter().append("circle")
          .attr("r", 10)
         .style("fill", function(d) {
-                      if (d.label == "Company") {return "red"}
-                    else 	{ return "black" }
+                      if (d.label == "Company") {return color(2)}
+                    else 	{ return color(4) }
                   ;})
         .on("mouseover", function(){d3.select(this).transition().attr("r",20);})
         .on("mouseout", function(){d3.select(this).transition().attr("r",10)})

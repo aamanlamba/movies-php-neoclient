@@ -84,7 +84,58 @@
 </style>
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    function drawGraph(){
+        var width = 800, height = 800;
+        $("#graph").empty();
+        
+       // console.log("Called drawGraph");
+        var force = d3.layout.force()
+        .charge(-200).linkDistance(30).size([width, height]);
+        
+        var svg = d3.select("#graph").append("svg")
+        .attr("width", "100%").attr("height", "100%")
+        .attr("pointer-events", "all");
+        var query=$("#search").find("input[name=search]").val();
+        
+        d3.json("/graph?q=" + encodeURIComponent(query), function(error, graph) {
+                if (error) throw error;
+                
+                force.nodes(graph.nodes).links(graph.links).start();
+                
+                var link = svg.selectAll(".link")
+                .data(graph.links).enter()
+                .append("line").attr("class", "link");
+                
+                var node = svg.selectAll(".node")
+                .data(graph.nodes).enter()
+                .append("circle")
+                .attr("class", function (d) { return "node "+d.label })
+                .attr("r", 10)
+                .call(force.drag);
+                
+                // html title attribute
+                node.append("title")
+                .text(function (d) { return d.title; })
+                
+                // force feed algo ticks
+                force.on("tick", function() {
+                         link.attr("x1", function(d) { return d.source.x; })
+                         .attr("y1", function(d) { return d.source.y; })
+                         .attr("x2", function(d) { return d.target.x; })
+                         .attr("y2", function(d) { return d.target.y; });
+                         
+                         node.attr("cx", function(d) { return d.x; })
+                         .attr("cy", function(d) { return d.y; });
+                         
+                         });
+                });
+    };
+
+</script>
+
 <script type="text/javascript">
     $(function () {
         function showMovie(title) {
@@ -113,55 +164,20 @@
                         });
                         showMovie(data[0].movie.title);
                     }, "json");
+            drawGraph();
+
             return false;
         }
+      
 
         $("#search").submit(search);
         search();
-    })
-</script>
 
-<script type="text/javascript">
-    var width = 800, height = 800;
+      });
+    
+    
+   </script>
 
-    var force = d3.layout.force()
-            .charge(-200).linkDistance(30).size([width, height]);
 
-    var svg = d3.select("#graph").append("svg")
-            .attr("width", "100%").attr("height", "100%")
-            .attr("pointer-events", "all");
-
-    d3.json("/graph", function(error, graph) {
-        if (error) return;
-
-        force.nodes(graph.nodes).links(graph.links).start();
-
-        var link = svg.selectAll(".link")
-                .data(graph.links).enter()
-                .append("line").attr("class", "link");
-
-        var node = svg.selectAll(".node")
-                .data(graph.nodes).enter()
-                .append("circle")
-                .attr("class", function (d) { return "node "+d.label })
-                .attr("r", 10)
-                .call(force.drag);
-
-        // html title attribute
-        node.append("title")
-                .text(function (d) { return d.title; })
-
-        // force feed algo ticks
-        force.on("tick", function() {
-            link.attr("x1", function(d) { return d.source.x; })
-                    .attr("y1", function(d) { return d.source.y; })
-                    .attr("x2", function(d) { return d.target.x; })
-                    .attr("y2", function(d) { return d.target.y; });
-
-            node.attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; });
-        });
-    });
-</script>
 </body>
 </html>
