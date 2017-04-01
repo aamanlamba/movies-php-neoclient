@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request,
 use Neoxygen\NeoClient\ClientBuilder;
 
 require __DIR__.'/vendor/autoload.php';
-
+    
 $app = new Application();
 
 if (false !== getenv('GRAPHSTORY_URL')) {
@@ -23,23 +23,30 @@ $neo4j = ClientBuilder::create()
     ->build();
 
 $app->get('/', function () {
-    return file_get_contents(__DIR__.'/static/index.html');
+    return file_get_contents(__DIR__.'/static/index2.html');
 });
-
+    
+ 
 $app->get('/graph', function (Request $request) use ($neo4j) {
     $limit = $request->get('limit', 50);
-    $params = ['limit' => $limit];
-    $q = 'MATCH (m:Movie)<-[r:ACTED_IN]-(p:Person) RETURN m,r,p LIMIT {limit}';
-    $result = $neo4j->sendCypherQuery($q, $params)->getResult();
-
+    $searchTerm = $request->get('q');
+    $term = '(?i).*'.$searchTerm.'.*';
+          
+    $params = ['term'=>$term,'limit' => $limit];
+    $query = 'MATCH (m:Company)-[r:ComplaintExists]->(p:Complaint) WHERE m.name =~ {term} RETURN m,r,p LIMIT {limit}';
+    $result = $neo4j->sendCypherQuery($query, $params)->getResult();
     $nodes = [];
     $edges = [];
     $nodesPositions = [];
+          $minSize = 1;
+          $maxSize = 15;
 
     $i = 0;
     foreach ($result->getNodes() as $node){
-        $prop = ($node->getLabel() === 'Movie') ? 'title' : 'name';
+        $prop = ($node->getLabel() === 'Company') ? 'name' : 'Product';
+          
         $nodes[] = [
+            'name' => $node->getProperty($prop),
             'title' => $node->getProperty($prop),
             'label' => $node->getLabel()
         ];
@@ -66,70 +73,59 @@ $app->get('/graph', function (Request $request) use ($neo4j) {
 });
 
 $app->get('/search', function (Request $request) use ($neo4j) {
-    $searchTerm = $request->get('q');
-    $term = '(?i).*'.$searchTerm.'.*';
-    $query = 'MATCH (m:Movie) WHERE m.title =~ {term} RETURN m';
-    $params = ['term' => $term];
-
-    $result = $neo4j->sendCypherQuery($query, $params)->getResult();
-    $movies = [];
-    foreach ($result->getNodes() as $movie){
-        $movies[] = ['movie' => $movie->getProperties()];
-    }
-
-    $response = new JsonResponse();
-    $response->setData($movies);
-
-    return $response;
+          $searchTerm = $request->get('q');
+          $term = '(?i).*'.$searchTerm.'.*';
+          $query = 'MATCH (m:Company) WHERE m.name =~ {term} RETURN m';
+          $params = ['term' => $term];
+          
+          $result = $neo4j->sendCypherQuery($query, $params)->getResult();
+          $companies = [];
+          foreach ($result->getNodes() as $company){
+          $companies[] = ['company' => $company->getProperties()];
+          }
+          
+          $response = new JsonResponse();
+          $response->setData($companies);
+          
+          return $response;
 });
 
-$app->get('/movie/{title}', function ($title) use ($neo4j) {
-    $q = 'MATCH (m:Movie) WHERE m.title = {title} OPTIONAL MATCH p=(m)<-[r]-(a:Person) RETURN m,p';
-    $params = ['title' => $title];
+$app->get('/company/{name}', function ($name) use ($neo4j) {
+  
+          $q = 'MATCH (m:Company) WHERE m.name = {name} OPTIONAL MATCH p=(m)-[r]->(a:Complaint) RETURN m,p LIMIT 5';
+          $params = ['name' => $name];
+          
+          $result = $neo4j->sendCypherQuery($q, $params)->getResult();
+          
+          $company = $result->getSingleNodeByLabel('Company');
+          $comp = [
+          'name' => $company->getProperty('name'),
+          'complaints' => []
 
-    $result = $neo4j->sendCypherQuery($q, $params)->getResult();
-
-    $movie = $result->getSingleNodeByLabel('Movie');
-    $mov = [
-        'title' => $movie->getProperty('title'),
-        'cast' => []
-        ];
-
-    foreach ($movie->getInboundRelationships() as $rel){
-        $actor = $rel->getStartNode()->getProperty('name');
-        $relType = explode('_', strtolower($rel->getType()));
-        $job = $relType[0];
-        $cast = [
-            'job' => $job,
-            'name' => $actor
-        ];
-        if (array_key_exists('roles', $rel->getProperties())){
-            $cast['role'] = implode(',', $rel->getProperties()['roles']);
-        } else {
-            $cast['role'] = null;
-        }
-        $mov['cast'][] = $cast;
-    }
-
-    $response = new JsonResponse();
-    $response->setData($mov);
-
-    return $response;
+          ];
+          
+          foreach ($company->getOutboundRelationships() as $rel){
+          $product = $rel->getEndNode()->getProperty('Product');
+          $zipCode = $rel->getEndNode()->getProperty('consumerZipCode');
+          $complaintID = $rel->getEndNode()->getProperty('ComplaintID');
+          $relType = explode('_', strtolower($rel->getType()));
+          $isComplaint = $relType[0];
+          $complaints = [
+          'complaintExists' => $isComplaint,
+          'complaintID' => $complaintID,
+          'name' => $product,
+          'zipCode'=>$zipCode
+          
+          ];
+          $comp['complaints'][] = $complaints;
+          }
+          
+          $response = new JsonResponse();
+          $response->setData($comp);
+          
+          return $response;
 });
-
-$app->get('/import', function () use ($app, $neo4j) {
-    $q = trim(file_get_contents(__DIR__.'/static/movies.cypher'));
-    $neo4j->sendCypherQuery($q);
-
-    return $app->redirect('/');
-});
-
-$app->get('/reset', function() use ($app, $neo4j) {
-    $q = 'MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r,n';
-    $neo4j->sendCypherQuery($q);
-
-    return $app->redirect('/import');
-
-});
-
+    
 $app->run();
+    
+
