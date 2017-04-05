@@ -23,6 +23,9 @@
       location = "group:/Users/aamanlamba/Documents/movies-php-neoclient/index3.php">
    </FileRef>
    <FileRef
+      location = "group:index2.php">
+   </FileRef>
+   <FileRef
       location = "group:/Users/aamanlamba/Documents/movies-php-neoclient/index.php">
    </FileRef>
    <FileRef
