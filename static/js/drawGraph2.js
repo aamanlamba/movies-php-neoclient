@@ -63,7 +63,7 @@ function drawGraph(query){
     function drawChart(data) {
         
         var simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(function(d) { return d.index }).distance(100).strength(0.1))
+        .force("link", d3.forceLink().id(function(d) { return d.index }).distance(200).strength(0.5))
         .force("collide",d3.forceCollide( function(d){return 18 }).iterations(16) )
         .force("charge", d3.forceManyBody().strength(-50))
         .force("center", d3.forceCenter(width / 2, height / 2))

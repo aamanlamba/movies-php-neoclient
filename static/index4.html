@@ -1,36 +1,30 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="/static/css/main.css">
-                <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-                    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
-                        <link rel="stylesheet" type="text/css" href="/static/formstyle.css">
-                            
-                            <style type="text/css">
-                                .nodes { stroke: #222; stroke-width: 1.5px; }
-                                .nodes.system { fill: #34B; }
-                                .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
-                                </style>
-                            <title>Data Flows</title>
-                            <script type="text/javascript">
-                                if (window.location.protocol == "https:") {
-                                    var restOfUrl = window.location.href.substr(6);
-                                    window.location.replace("http:" + restOfUrl);
-                                }
-                            </script>
-                            <style>
-                                #graph {
-                                    width: 800px;
-                                    height: 400px;
-                                }
-                            
-                                </style>
-                            <!-- Scripts -->
-                            <script src="http://code.jquery.com/jquery-1.11.0.min.js" type="text/javascript"></script>
-                            <script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
-                            <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-                            
-                            </head>
+        <link rel="stylesheet" href="/static/css/main.css">
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="/static/formstyle.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-multiselect.css">
+
+        <title>Data Flows</title>
+        <style>
+            #graph {
+                width: 800px;
+                height: 400px;
+            }
+        
+            </style>
+        <!-- Scripts -->
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js" type="text/javascript"></script>
+        <script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" type="text/css" />
+        <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        
+        <script type="text/javascript" src="http://davidstutz.github.io/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+        <link rel="stylesheet" href="http://davidstutz.github.io/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" type="text/css"/>
+    </head>
     
     <body>
         <div class="pos vis section">
@@ -59,24 +53,23 @@
                             </div>
                             <div class="vis-12 pos-12 size-11 colwrapper">
                                 <div class="vis-13 pos-13 size-12 cont-11">
-                                    <input id="checkbox-1" name="sourceBU" type="checkbox" class="input-2">
-                                        <input id='checkbox-1Hidden' type='hidden' value='No' name='sourceBU'>
-                                            <label for="checkbox-1" class="font-5">CFT</label>
-                                            </div>
+                                    <select name="sourceBU" multiple="multiple" id="sourceBU">
+                                        
+                                            <option value="CF">Central Func</option>
+                                            <option value="Fin">Finance</option>
+                                            <option value="Com">Compliance</option>
+                                            <option value="HR">Human Res</option>
+                                            </option>
+                                            </select>
+                                    <select name="sourceADS" multiple="multiple" id="sourceADS">
+                                        
+                                            <option value="ADS">ADS</option>
+                                            <option value="nonADS">Non-ADS</option>
+                                            </option>
+                                            </select>
+                                </div>
                                 <div class="vis-14 pos-14 size-13 cont-12">
-                                    <input id="checkbox-2" name="sourceBU" type="checkbox" class="input-3">
-                                        <label for="checkbox-2" class="font-6">Non-CFT</label>
-                                        </div>
-                            </div>
-                            <div class="vis-15 pos-15 size-14 colwrapper-2">
-                                <div class="vis-16 pos-16 size-15 cont-13">
-                                    <input id="checkbox-3" name="sourceADS" type="checkbox" class="input-4">
-                                        <label for="checkbox-3" class="font-7">ADS</label>
-                                        </div>
-                                <div class="vis-17 pos-17 size-16 cont-14">
-                                    <input id="checkbox-4" name="sourceADS" type="checkbox" class="input-5">
-                                        <label for="checkbox-4" class="font-8">Non-ADS</label>
-                                        </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,23 +88,32 @@
                             </div>
                             <div class="vis-24 pos-24 size-23 colwrapper-3">
                                 <div class="vis-25 pos-25 size-24 cont-21">
-                                    <input id="checkbox-5" name="targetBU" type="checkbox" class="input-7">
-                                        <label for="checkbox-5" class="font-11">CFT</label>
+                                    <select name="targetBU" multiple="multiple" id="targetBU">
+                                        
+                                        <option value="CF">Central Func</option>
+                                        <option value="Fin">Finance</option>
+                                        <option value="Com">Compliance</option>
+                                        <option value="HR">Human Res</option>
+                                        </option>
+                                    </select>
+                                    <select name="targetADS" multiple="multiple" id="targetADS">
+                                        
+                                        <option value="ADS">ADS</option>
+                                        <option value="nonADS">Non-ADS</option>
+                                        </option>
+                                    </select>
+
                                         </div>
                                 <div class="vis-26 pos-26 size-25 cont-22">
-                                    <input id="checkbox-6" name="targetBU" type="checkbox" class="input-8">
-                                        <label for="checkbox-6" class="font-12">Non-CFT</label>
+
                                         </div>
                             </div>
                             <div class="vis-27 pos-27 size-26 colwrapper-4">
                                 <div class="vis-28 pos-28 size-27 cont-23">
-                                    <input id="checkbox-7" name="targetADS" type="checkbox" class="input-9">
-                                        <label for="checkbox-7" class="font-13">ADS</label>
+ 
                                         </div>
                                 <div class="vis-29 pos-29 size-28 cont-24">
-                                    <input id="checkbox-8" name="targetADS" type="checkbox" class="input-10">
-                                        <label for="checkbox-8" class="font-14">Non-ADS</label>
-                                        </div>
+                                      </div>
                             </div>
                         </div>
                     </div>
@@ -121,6 +123,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-sm-6 col-md-6">
+                        
                                 <ul class="nav navbar-nav">
                                     <li>
                                         
@@ -135,7 +138,7 @@
                                 <div class="logo-well">
                                 </div>
                                 <div class="navbar-brand">
-                                    <div class="brand">System Info</div>
+                                    <div class="brand">Graph</div>
                                 </div>
                             </div>
                         </div>
@@ -151,7 +154,7 @@
                         <table id="results" class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>System</th>
+                                    <th>Path</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -167,103 +170,7 @@
         
         <script src="/static/js/drawGraph2.js"></script>
         
-        <script type="text/javascript">
-            $(function () {
-              
-              function showSystem(name) {
-              console.log("/system/" + encodeURIComponent(name));
-              $.get("/system/" + encodeURIComponent(name),
-                    function(data){
-                    if (!data) return;
-                    var t = $("table2#results tbody").empty();
-                    var system = data[0].system;
-                    
-                    console.log("<li>" + system.name + " ID:" + system.SysID + " ADS:" + system.isADS + "</li>");
-                    $("#name").text(system.name);
-                    // var $list = $("#sysinfo").empty()
-                    $("<li>" + system.name + " ID:" + system.SysID + " ADS:" + system.isADS + "</li>").appendTo(list);
-                    }, "json");
-              return false;
-              }
-              
-              
-              function search() {
-              
-              var query = getSearchParams();
-              console.log(query);
-              //var query=$("#search").find("input[name=search]").val();
-              $.get("/search?"+query,
-                    function (data) {
-                    var t = $("table#results tbody").empty();
-                    if (!data || data.length == 0) {
-                    console.log("Empty result");
-                    return;
-                    }
-                    data.forEach(function (row) {
-                                 var system = row.system;
-                                 //   console.log(system);
-                                 $("<tr><td class='system'>" + system.name + " ID:" + system.SysID  + " ADS:" + system.isADS+ "</td></tr>").appendTo(t)
-                                 .click(function() { showSystem($(this).find("td.system").text());})
-                                 //    console.log(company);
-                                 });
-                    //  showSystem(data[0].system.name);
-                    }, "json");
-              drawGraph(query);
-              return false;
-              }
-              
-              
-              function getSearchParams(){
-              var result='';
-              var sourceAITs = $("#search").find("textarea[name=sourceAITs]").val();
-              console.log("Source AITs:"+sourceAITs);
-              var sourceBU=[];
-              $("input:checkbox[name=sourceBU]:checked").each(function(){
-                                                              sourceBU.push($(this).val());
-                                                              });
-              console.log("SourceBU:"+sourceBU);
-              var sourceADS=[];
-              $("input:checkbox[name=sourceADS]:checked").each(function(){
-                                                               sourceADS.push($(this).val());
-                                                               });
-              console.log("SourceADS:"+sourceADS);
-              var targetAITs = $("#search").find("textarea[name=targetAITs]").val();
-              console.log("Target AITs:"+targetAITs);
-              var targetBU=[];
-              $("input:checkbox[name=sourceBU]:checked").each(function(){
-                                                              targetBU.push($(this).val());
-                                                              });
-              BUchecked = $('sourceBU').map(function() {
-                                            if($(this).checked)
-                                            return $(this).value;
-                                            }).get();
-              BUunchecked = $('sourceBU').map(function() {
-                                              if(!this.checked)
-                                              return $(this).value;
-                                              }).get();
-              console.log(BUchecked);
-              console.log(BUunchecked);
-              console.log("TargetBU:"+targetBU);
-              var targetADS=[];
-              $("input:checkbox[name=sourceADS]:checked").each(function(){
-                                                               targetADS.push($(this).val());
-                                                               });
-              console.log("TargetADS:"+targetADS);
-              
-              result = 'sourceAITs='+encodeURIComponent(sourceAITs)+'&'
-              +'sourceBU='+encodeURIComponent(sourceBU)+'&'
-              +'sourceADS='+encodeURIComponent(sourceADS) +'&'
-              +'targetAITs='+encodeURIComponent(targetAITs)+'&'
-              +'targetBU='+encodeURIComponent(targetBU)+'&'
-              +'targetADS='+encodeURIComponent(targetADS);
-              console.log("Query String:"+result);
-              return result;
-              }
-              
-              $("#search").submit(search);
-              search();
-              })
-            </script>
+        <script src="/static/js/searchGraph.js"></script>
         
     </body>
 </html>

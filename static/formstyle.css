@@ -1062,4 +1062,8 @@ html {
     width: 84px;
 }
 
+.nodes { stroke: #222; stroke-width: 1.5px; }
+.nodes.system { fill: #34B; }
+.link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
+
 

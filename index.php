@@ -6,15 +6,13 @@
     use Neoxygen\NeoClient\ClientBuilder;
     
     require __DIR__.'/vendor/autoload.php';
-    
+    define("ANDC", " and ");
     $app = new Application();
     
-    if (false !== getenv('GRAPHSTORY_URL')) {
-        $cnx = parse_url(getenv('GRAPHSTORY_URL'));
-    } else {
+  
         $config = Yaml::parse(file_get_contents(__DIR__.'/config/config.yml'));
         $cnx = parse_url($config['neo4j_url']);
-    }
+   
     
     $neo4j = ClientBuilder::create()
     ->addConnection('default', $cnx['scheme'], $cnx['host'], $cnx['port'], true, $cnx['user'], $cnx['pass'])
@@ -27,21 +25,34 @@
               });
     
     $app->get('/graph', function (Request $request) use ($neo4j) {
-              $sourceAITs="";
-              $targetAITs="";
-              $limit = $request->get('limit', 50);
+              $sourceAITs='(?i).*';
+              $targetAITs='(?i).*';
+              $orgSource ='(?i).*';
+              $orgTarget ='(?i).*';
               $sourceAITs = $request->get('sourceAITs');
               $targetAITs = $request->get('targetAITs');
               $sourceAITs = '(?i).*'.$sourceAITs.'.*';
               $targetAITs = '(?i).*'.$targetAITs.'.*';
+              $orgSource = urldecode($request->get('sourceBU'));
+              $adsSource = urldecode($request->get('sourceADS'));
+              $orgTarget = urldecode($request->get('targetBU'));
+              $adsTarget = urldecode($request->get('targetADS'));
               
+              if($orgSource=="" || is_null($orgSource))
+                $orgSource ='(?i).*';
+              else
+                $orgSource ='(?i).*'.$orgSource.'.*';
+              if($orgTarget=="" || is_null($orgTarget) )
+                $orgTarget ='(?i).*';
+              else
+                $orgTarget ='(?i).*'.$orgTarget.'.*';
               $params = [];
-              
               $params = ['sources'=>$sourceAITs,
+              'sourcesOrg'=>$orgSource,
               'targets'=>$targetAITs,
-              'limit' => $limit];
-              $query = 'MATCH (m:System)-[r:DataFlow*..]-(p:System) where m.name =~{sources} and p.name=~{targets} RETURN m,r,p LIMIT {limit}';
-              //   print_r($query);
+              'targetsOrg'=>$orgTarget];
+              $query = 'MATCH pa=((m:System)-[r:DataFlow*..]-(p:System)) where m.name =~ {sources} and p.name=~ {targets} RETURN pa';
+             
               $result = $neo4j->sendCypherQuery($query, $params)->getResult();
               
               $nodes = [];
@@ -82,25 +93,14 @@
     
     $app->get('/search', function (Request $request) use ($neo4j) {
               //create default search params
-              // $sourceAITs="";
-              //$targetAITs="";
-              $sourceAITs = $request->get('sourceAITs');
-              $targetAITs = $request->get('targetAITs');
-              $sourceAITs = '(?i).*'.$sourceAITs.'.*';
-              $targetAITs = '(?i).*'.$targetAITs.'.*';
-              $orgOptionsSource = $request->get('sourceBU');
-              $adsOptionsSource = $request->get('sourceADS');
-              $orgOptionsTarget = $request->get('targetBU');
-              $adsOptionsTarget = $request->get('targetADS');
-              
-              //print_r($term);
-              $params = ['sources'=>$sourceAITs,
-              'targets'=>$targetAITs];
-              $query = 'MATCH (m:System)-[r:DataFlow]-(p:System) where m.name =~ {sources} and p.name=~ {targets} RETURN m,p';
-              //and m.Org= $sourceOrg and p.Org = $targetOrg \
-              //and m.isADS= $sourceADS and p.isADS = $targetADS \
-              
-              //  print($query);
+              $params = getSearchParams($request);
+     //           print_r($params);echo '<br/>';
+              $sources = $params['sources'];
+              $targets = $params['targets'];
+              $sourcesOrg = $params['sourcesOrg'];
+              $targetsOrg = $params['targetsOrg'];
+              $query = 'MATCH pa=((m:System)-[r:DataFlow*..]-(p:System)) where '.$sources.ANDC.$targets.ANDC.$sourcesOrg.ANDC.$targetsOrg.' RETURN pa';
+           //   print($query);echo '<br/>';
               $result = $neo4j->sendCypherQuery($query, $params)->getResult();
               $systems = [];
               foreach ($result->getNodes() as $system){
@@ -136,6 +136,55 @@
               return $response;
               });
     
+    function getSearchParams($request){
+        $sourceAITs='(?i).*';
+        $targetAITs='(?i).*';
+        $orgSource ='TRUE';
+        $orgTarget ='TRUE';
+        $adsSource='TRUE';
+        $adsTarget = 'TRUE';
+        $sourceAITs = urldecode($request->get('sourceAITs'));
+        $targetAITs = urldecode($request->get('targetAITs'));
+        $sourceAITs = ' m.name =~ "(?i).*'.$sourceAITs.'.*"';
+        $targetAITs = ' p.name =~ "(?i).*'.$targetAITs.'.*"';
+            $orgSource = ' m.Org in '.parseComp(urldecode($request->get('sourceBU')));
+        $adsSource = urldecode($request->get('sourceADS'));
+            $orgTarget = ' p.Org in '.parseComp(urldecode($request->get('targetBU')));
+        $adsTarget = urldecode($request->get('targetADS'));
+        
+        $params = ['sources'=>$sourceAITs,
+                    'sourcesOrg'=>$orgSource,
+                    'targets'=>$targetAITs,
+                    'targetsOrg'=>$orgTarget];
+        
+        return $params;
+    }
+    
+    function parseComp($str){
+        
+        $orgSource2='[';
+        
+        if($str=="" || is_null($str))
+            $orgSource2 ='(?i).*';
+        else
+        {
+            $orgSourceArr = explode(',', $str);
+            //  print_r($orgSourceArr);
+            //echo '<br/>';
+            foreach($orgSourceArr as $arr){
+                $orgSource2= $orgSource2.'"'.$arr.'",';
+            }
+     //       print_r('Revised:'.$orgSource2);
+       //     echo '<br/>';
+            $orgSource2 = substr($orgSource2,0,strlen($orgSource2)-1);
+         //   print_r('Revised2:'.$orgSource2);
+           // echo '<br/>';
+            $orgSource2 = $orgSource2.']';
+            //print_r('Revised3:'.$orgSource2);
+            //echo '<br/>';
+        }
+        return $orgSource2;
+    }
     
     
     $app->run();
